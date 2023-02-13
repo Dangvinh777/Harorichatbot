@@ -9,13 +9,16 @@ const telegramToken = process.env.TELEGRAM_KEY;
 DbService.connect().then(() => {
   // Khởi tạo con Bot từ Token với chế độ Polling
   const bot = new TelegramBot(telegramToken, {polling: true});
-
+  const PORT = process.env.PORT || 5000;
   bot.on('message', async (msg) => {
     const authorId = msg.from.id      // Lấy id của người gửi
     const chatId = msg.chat.id;       // ID của cuộc trò chuyện hiện tại
     const chatMsg = msg.text;         // Nội dung của tin nhắn đã nhận
     // Đầu tiên sẽ lấy thông tin user ra
     const user = await DbService.getUserByTelegramId(authorId);
+    DbService.listen(PORT, () => {
+      console.log(`Our app is running on port ${ PORT }`);
+      });
     if (msg.text === '/clear') {
       // Xoá các tin nhắn cũ trong lịch sử
       await DbService.clearUserMessages(user._id);
@@ -25,10 +28,8 @@ DbService.connect().then(() => {
     ChatGPTService.generateCompletion(chatMsg, user).then(responseMsg => {
       bot.sendMessage(chatId, responseMsg);
     });
-    const PORT = process.env.PORT || 5000;
-    bot.listen(PORT, () => {
-    console.log(`Our app is running on port ${ PORT }`);
-    });
+    
+   
   });
 });
 
