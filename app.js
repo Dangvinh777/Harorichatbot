@@ -25,5 +25,10 @@ DbService.connect().then(() => {
     ChatGPTService.generateCompletion(chatMsg, user).then(responseMsg => {
       bot.sendMessage(chatId, responseMsg);
     });
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+    console.log(`Our app is running on port ${ PORT }`);
+    });
   });
 });
+
